@@ -1,0 +1,47 @@
+version: '3.6'
+
+volumes:
+  gems_data:
+    name: graphql-demo-gems-development
+    driver: local
+
+  mariadb_data:
+    name: graphql-demo-mariadb-development
+    driver: local
+
+networks:
+  graphql-demo-development:
+    external: true
+
+services:
+  mariadb:
+    container_name: graphql-demo-mariadb-development
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      default:
+      graphql-demo-development:
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd123
+      - MYSQL_DATABASE=app_development
+
+  rails:
+    build:
+      context: ..
+      dockerfile: ./docker/rails/development/Dockerfile
+    container_name: graphql-demo-rails-development
+    depends_on:
+      - mariadb
+    volumes:
+      - gems_data:/ruby_gems
+    networks:
+      default:
+      graphql-demo-development:
+    ports:
+      - 3000:3000
+    environment:
+      - RAILS_ENV=development
+    entrypoint: ./docker/rails/development/entrypoint.sh
+    command: ["rails", "server", "-b0"]
+    tty: true
+    stdin_open: true

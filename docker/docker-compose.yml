@@ -1,0 +1,13 @@
+version: '3.6'
+
+services:
+  mariadb:
+    image: mariadb:10.3.9
+    volumes:
+      - ../config/mariadb:/etc/mysql/conf.d
+      - ../config/mariadb/initializers:/docker-entrypoint-initdb.d
+
+  rails:
+    build: ..
+    volumes:
+      - ..:/app
